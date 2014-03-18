@@ -1,0 +1,48 @@
+#RECLONE=yes
+OFFLINE=True
+
+HOST_IP=192.168.90.91
+
+ADMIN_PASSWORD=password
+MYSQL_PASSWORD=password
+RABBIT_PASSWORD=password
+SERVICE_PASSWORD=password
+SERVICE_TOKEN=token
+
+MULTI_HOST=1
+
+disable_service n-net
+enable_service q-svc q-agt q-dhcp q-l3 q-meta q-lbaas
+
+### ML2 plugin ###
+Q_PLUGIN=ml2
+Q_ML2_TENANT_NETWORK_TYPE=vlan
+
+# prepare the interface, don't forget to load the 8102q module
+# ovs-vsctl add-br br-eth2
+# ovs-vsctl add-port br-eth2 eth2
+ML2_VLAN_RANGES=tenant-vlan:200:300,public
+Q_ML2_PLUGIN_TYPE_DRIVERS=flat,vlan,gre,vxlan
+ENABLE_TENANT_VLANS=True
+
+# To create the provider network as shared and external
+# neutron net-create public-vlan --provider:network_type vlan
+# --provider:physical_network public-vlan --provider:segmentation_id 500
+# --shared --router:external=True
+
+### openvswitch agent ###
+OVS_BRIDGE_MAPPINGS=tenant-vlan:br-eth2,public-vlan:br-eth3
+ENABLE_TENANT_TUNNELS=False
+OVS_VLAN_RANGES=tenant-vlan:200:300,public-vlan
+TENANT_VLAN_RANGE=100:200
+
+# Prevent L3 agent from using br-ex
+PUBLIC_BRIDGE=""
+
+### Nova Extra opts ###
+EXTRA_OPTS=(vnc_keymap=fr)
+
+LOGFILE=$DEST/logs/stack.sh.log
+LOGDAYS=1
+
+SCREEN_LOGDIR=$DEST/logs/screen
